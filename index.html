@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>英语学习</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #20242a;
+      --muted: #667085;
+      --line: #d8dee8;
+      --blue: #2563eb;
+      --green: #0f8a65;
+      --amber: #b45309;
+      --rose: #be123c;
+      --shadow: 0 12px 30px rgba(24, 35, 58, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: #fbfcfe;
+      padding: 24px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .status {
+      min-width: 72px;
+      border: 1px solid #b9d6c9;
+      border-radius: 999px;
+      padding: 6px 10px;
+      color: var(--green);
+      background: #edf8f3;
+      font-size: 13px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .search {
+      width: 100%;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      background: var(--panel);
+      color: var(--text);
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 12px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .nav-title {
+      margin: 22px 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .date-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .date-button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .date-button.active {
+      color: #ffffff;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .main {
+      padding: 30px;
+      min-width: 0;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .toolbar h2 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .toolbar p {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .reload {
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 0 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .reload:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .speak-all,
+    .voice-button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .speak-all {
+      height: 40px;
+      padding: 0 14px;
+      white-space: nowrap;
+    }
+
+    .voice-button {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue);
+    }
+
+    .speak-all:hover,
+    .voice-button:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .voice-button[aria-pressed="true"] {
+      color: #ffffff;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .topic {
+      margin: 0 0 18px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--amber);
+      background: #fff8ed;
+      border-radius: 0 8px 8px 0;
+      color: #713f12;
+    }
+
+    .word-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 16px;
+    }
+
+    .word-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .word-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 12px;
+    }
+
+    .word-title {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .word-index {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .field {
+      margin: 10px 0;
+      line-height: 1.65;
+    }
+
+    .field-name {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .sub-list {
+      margin: 8px 0 0 18px;
+      padding: 0;
+      color: #394150;
+      line-height: 1.7;
+    }
+
+    .empty,
+    .error {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 22px;
+      color: var(--muted);
+    }
+
+    .error {
+      border-color: #fecdd3;
+      color: var(--rose);
+      background: #fff1f2;
+    }
+
+    mark {
+      background: #fde68a;
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .main {
+        padding: 22px;
+      }
+
+      .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>英语学习</h1>
+        <div class="status" id="status">读取中</div>
+      </div>
+
+      <input class="search" id="search" type="search" placeholder="搜索单词、中文、例句">
+
+      <div class="stats">
+        <div class="stat">
+          <strong id="wordCount">0</strong>
+          <span>单词</span>
+        </div>
+        <div class="stat">
+          <strong id="dateCount">0</strong>
+          <span>学习日</span>
+        </div>
+      </div>
+
+      <div class="nav-title">学习日期</div>
+      <div class="date-list" id="dateList"></div>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar">
+        <div>
+          <h2 id="currentDate">学习记录</h2>
+          <p id="summary">自动读取 英语学习.md</p>
+        </div>
+        <div class="actions">
+          <button class="speak-all" id="speakAll" type="button">朗读当前日期</button>
+          <button class="reload" id="reload" type="button">刷新</button>
+        </div>
+      </div>
+
+      <div id="content"></div>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      days: [],
+      activeDate: "",
+      query: ""
+    };
+
+    const el = {
+      status: document.querySelector("#status"),
+      search: document.querySelector("#search"),
+      wordCount: document.querySelector("#wordCount"),
+      dateCount: document.querySelector("#dateCount"),
+      dateList: document.querySelector("#dateList"),
+      currentDate: document.querySelector("#currentDate"),
+      summary: document.querySelector("#summary"),
+      content: document.querySelector("#content"),
+      reload: document.querySelector("#reload"),
+      speakAll: document.querySelector("#speakAll")
+    };
+
+    function cleanSpeechText(value) {
+      return value
+        .replace(/^\d+\.\s*/, "")
+        .replace(/[^\w\s-]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function getEnglishVoice() {
+      const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+      return voices.find(voice => voice.lang === "en-US")
+        || voices.find(voice => voice.lang && voice.lang.startsWith("en-"))
+        || null;
+    }
+
+    function speakText(text) {
+      if (!("speechSynthesis" in window)) {
+        el.status.textContent = "不支持语音";
+        return;
+      }
+
+      const speechText = cleanSpeechText(text);
+      if (!speechText) return;
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(speechText);
+      utterance.lang = "en-US";
+      utterance.rate = 0.86;
+      utterance.pitch = 1;
+      utterance.voice = getEnglishVoice();
+      utterance.onstart = () => {
+        el.status.textContent = "朗读中";
+      };
+      utterance.onend = () => {
+        el.status.textContent = "已同步";
+      };
+      utterance.onerror = () => {
+        el.status.textContent = "朗读失败";
+      };
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function speakWords(words) {
+      if (!("speechSynthesis" in window)) {
+        el.status.textContent = "不支持语音";
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      const voice = getEnglishVoice();
+      const queue = words.map(item => cleanSpeechText(item.word)).filter(Boolean);
+
+      if (!queue.length) return;
+
+      for (const word of queue) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = "en-US";
+        utterance.rate = 0.82;
+        utterance.pitch = 1;
+        utterance.voice = voice;
+        utterance.onstart = () => {
+          el.status.textContent = "朗读中";
+        };
+        utterance.onend = () => {
+          if (!window.speechSynthesis.speaking) {
+            el.status.textContent = "已同步";
+          }
+        };
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function highlight(value) {
+      const safe = escapeHtml(value);
+      const query = state.query.trim();
+      if (!query) return safe;
+      const pattern = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return safe.replace(new RegExp(pattern, "gi"), match => `<mark>${match}</mark>`);
+    }
+
+    function parseMarkdown(markdown) {
+      const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+      const days = [];
+      let currentDay = null;
+      let currentWord = null;
+      let pendingField = null;
+
+      for (const rawLine of lines) {
+        const line = rawLine.trimEnd();
+        const dateMatch = line.match(/^##\s+(\d{4}-\d{2}-\d{2})\s*$/);
+        const wordMatch = line.match(/^###\s+(?:(\d+)\.\s*)?(.+?)\s*$/);
+        const topicMatch = line.match(/^主题：(.+?)\s*$/);
+        const fieldMatch = line.match(/^-\s*([^：:]+)[：:]\s*(.*)$/);
+        const nestedMatch = line.match(/^\s{2,}-\s+(.+)$/);
+
+        if (dateMatch) {
+          currentDay = { date: dateMatch[1], topic: "", words: [] };
+          days.push(currentDay);
+          currentWord = null;
+          pendingField = null;
+          continue;
+        }
+
+        if (!currentDay) continue;
+
+        if (topicMatch) {
+          currentDay.topic = topicMatch[1];
+          continue;
+        }
+
+        if (wordMatch) {
+          currentWord = {
+            index: wordMatch[1] || String(currentDay.words.length + 1),
+            word: wordMatch[2],
+            fields: []
+          };
+          currentDay.words.push(currentWord);
+          pendingField = null;
+          continue;
+        }
+
+        if (!currentWord) continue;
+
+        if (fieldMatch) {
+          pendingField = {
+            name: fieldMatch[1],
+            value: fieldMatch[2],
+            children: []
+          };
+          currentWord.fields.push(pendingField);
+          continue;
+        }
+
+        if (nestedMatch && pendingField) {
+          pendingField.children.push(nestedMatch[1]);
+        }
+      }
+
+      return days.reverse();
+    }
+
+    function dayMatches(day) {
+      const query = state.query.trim().toLowerCase();
+      if (!query) return day;
+      const words = day.words.filter(item => {
+        const text = [
+          item.word,
+          ...item.fields.flatMap(field => [field.name, field.value, ...field.children])
+        ].join(" ").toLowerCase();
+        return text.includes(query);
+      });
+      return { ...day, words };
+    }
+
+    function renderDates() {
+      el.dateList.innerHTML = "";
+      for (const day of state.days) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `date-button${day.date === state.activeDate ? " active" : ""}`;
+        button.innerHTML = `<span>${escapeHtml(day.date)}</span><span>${day.words.length}</span>`;
+        button.addEventListener("click", () => {
+          state.activeDate = day.date;
+          render();
+        });
+        el.dateList.appendChild(button);
+      }
+    }
+
+    function renderContent() {
+      const originalDay = state.days.find(day => day.date === state.activeDate);
+      if (!originalDay) {
+        el.content.innerHTML = '<div class="empty">还没有学习记录。</div>';
+        return;
+      }
+
+      const day = dayMatches(originalDay);
+      el.currentDate.textContent = day.date;
+      el.summary.textContent = state.query
+        ? `搜索结果：${day.words.length} / ${originalDay.words.length} 个单词`
+        : `${originalDay.words.length} 个单词`;
+
+      if (!day.words.length) {
+        el.content.innerHTML = '<div class="empty">没有匹配的单词。</div>';
+        return;
+      }
+
+      const topic = day.topic ? `<p class="topic">${highlight(day.topic)}</p>` : "";
+      const cards = day.words.map(item => {
+        const fields = item.fields.map(field => {
+          const children = field.children.length
+            ? `<ul class="sub-list">${field.children.map(child => `<li>${highlight(child)}</li>`).join("")}</ul>`
+            : "";
+          return `
+            <div class="field">
+              <span class="field-name">${highlight(field.name)}：</span>${highlight(field.value)}
+              ${children}
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <article class="word-card">
+            <div class="word-head">
+              <h3 class="word-title">${highlight(item.word)}</h3>
+              <button class="voice-button" type="button" data-word="${escapeHtml(item.word)}" aria-label="朗读 ${escapeHtml(item.word)}" title="朗读 ${escapeHtml(item.word)}">
+                <span aria-hidden="true">▶</span>
+              </button>
+              <span class="word-index">#${escapeHtml(item.index)}</span>
+            </div>
+            ${fields}
+          </article>
+        `;
+      }).join("");
+
+      el.content.innerHTML = `${topic}<section class="word-grid">${cards}</section>`;
+      el.content.querySelectorAll(".voice-button").forEach(button => {
+        button.addEventListener("click", () => speakText(button.dataset.word || ""));
+      });
+    }
+
+    function render() {
+      const totalWords = state.days.reduce((sum, day) => sum + day.words.length, 0);
+      el.wordCount.textContent = totalWords;
+      el.dateCount.textContent = state.days.length;
+      renderDates();
+      renderContent();
+    }
+
+    async function loadMarkdown() {
+      el.status.textContent = "读取中";
+      try {
+        const response = await fetch(`./英语学习.md?ts=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const markdown = await response.text();
+        state.days = parseMarkdown(markdown);
+        state.activeDate = state.activeDate || (state.days[0] && state.days[0].date) || "";
+        el.status.textContent = "已同步";
+        render();
+      } catch (error) {
+        el.status.textContent = "失败";
+        el.content.innerHTML = `
+          <div class="error">
+            无法自动读取 英语学习.md。请用本地服务器打开这个页面，例如运行：
+            <br>python -m http.server 8000
+          </div>
+        `;
+      }
+    }
+
+    el.search.addEventListener("input", event => {
+      state.query = event.target.value;
+      render();
+    });
+
+    el.reload.addEventListener("click", loadMarkdown);
+
+    el.speakAll.addEventListener("click", () => {
+      const originalDay = state.days.find(day => day.date === state.activeDate);
+      if (!originalDay) return;
+      speakWords(dayMatches(originalDay).words);
+    });
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = getEnglishVoice;
+    }
+
+    loadMarkdown();
+  </script>
+</body>
+</html>
