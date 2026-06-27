@@ -133,7 +133,10 @@
   - 分开读：pro-duce，重音在 DOOS
   - 词性：动词 verb
   - 动词变化：produce / produces / producing / produced / produced
+  - 构词分析：pro- 有“向前、产出”的感觉，duce 和“引导、带出”相关；produce 可以辅助理解为“把东西带出来、生产出来”
   - 例句：The factory produces cars. 这家工厂生产汽车。
+
+所有“核心动词 / 核心形容词 / 核心词”也必须有自己的构词分析。不要只分析外层单词，例如不要只写 `locator = locate + -or`，还要在 `locate` 下面解释 `locate` 自己的构词或记忆拆法。
 
 常见需要这样处理的词包括：requirement -> require，implementation -> implement，deployment -> deploy，production -> produce，environment -> environ，authentication -> authenticate，authorization -> authorize，permission -> permit，response -> respond，monitoring -> monitor。
 
