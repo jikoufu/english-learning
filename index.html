@@ -202,7 +202,8 @@
     }
 
     .speak-all,
-    .voice-button {
+    .voice-button,
+    .inline-voice-button {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
@@ -226,13 +227,28 @@
       color: var(--blue);
     }
 
+    .inline-voice-button {
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 6px;
+      color: var(--blue);
+      vertical-align: middle;
+      font-size: 12px;
+      line-height: 1;
+    }
+
     .speak-all:hover,
-    .voice-button:hover {
+    .voice-button:hover,
+    .inline-voice-button:hover {
       border-color: var(--blue);
       color: var(--blue);
     }
 
-    .voice-button[aria-pressed="true"] {
+    .voice-button[aria-pressed="true"],
+    .inline-voice-button[aria-pressed="true"] {
       color: #ffffff;
       background: var(--blue);
       border-color: var(--blue);
@@ -497,6 +513,18 @@
       return safe.replace(new RegExp(pattern, "gi"), match => `<mark>${match}</mark>`);
     }
 
+    function isCoreField(fieldName) {
+      return ["核心动词", "核心形容词", "核心词", "动词原形", "单数形式"].includes(fieldName);
+    }
+
+    function renderSpeakableValue(field) {
+      const value = highlight(field.value);
+      if (!isCoreField(field.name) || !field.value.trim()) return value;
+      const speechText = cleanSpeechText(field.value);
+      if (!speechText) return value;
+      return `${value}<button class="inline-voice-button" type="button" data-word="${escapeHtml(speechText)}" aria-label="朗读 ${escapeHtml(speechText)}" title="朗读 ${escapeHtml(speechText)}"><span aria-hidden="true">▶</span></button>`;
+    }
+
     function parseMarkdown(markdown) {
       const lines = markdown.replace(/\r\n/g, "\n").split("\n");
       const days = [];
@@ -612,7 +640,7 @@
             : "";
           return `
             <div class="field">
-              <span class="field-name">${highlight(field.name)}：</span>${highlight(field.value)}
+              <span class="field-name">${highlight(field.name)}：</span>${renderSpeakableValue(field)}
               ${children}
             </div>
           `;
@@ -633,7 +661,7 @@
       }).join("");
 
       el.content.innerHTML = `${topic}<section class="word-grid">${cards}</section>`;
-      el.content.querySelectorAll(".voice-button").forEach(button => {
+      el.content.querySelectorAll(".voice-button, .inline-voice-button").forEach(button => {
         button.addEventListener("click", () => speakText(button.dataset.word || ""));
       });
     }
