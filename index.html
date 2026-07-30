@@ -318,6 +318,29 @@
       line-height: 1.7;
     }
 
+    .review-panel {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .review-panel h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    .review-list {
+      margin: 0;
+      padding-left: 20px;
+      line-height: 1.7;
+      color: #394150;
+    }
+
     .empty,
     .error {
       border: 1px solid var(--line);
@@ -408,7 +431,8 @@
     const state = {
       days: [],
       activeDate: "",
-      query: ""
+      query: "",
+      activeView: "words"
     };
 
     const el = {
@@ -525,26 +549,108 @@
       return `${value}<button class="inline-voice-button" type="button" data-word="${escapeHtml(speechText)}" aria-label="朗读 ${escapeHtml(speechText)}" title="朗读 ${escapeHtml(speechText)}"><span aria-hidden="true">▶</span></button>`;
     }
 
+    function bindVoiceButtons() {
+      el.content.querySelectorAll(".voice-button, .inline-voice-button").forEach(button => {
+        button.addEventListener("click", () => speakText(button.dataset.word || ""));
+      });
+    }
+
+    function renderWordCard(item, fallbackIndex) {
+      const index = item.index || String(fallbackIndex);
+      const fields = item.fields.map(field => {
+        const children = field.children.length
+          ? `<ul class="sub-list">${field.children.map(child => `<li>${highlight(child)}</li>`).join("")}</ul>`
+          : "";
+        return `
+          <div class="field">
+            <span class="field-name">${highlight(field.name)}：</span>${renderSpeakableValue(field)}
+            ${children}
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <article class="word-card">
+          <div class="word-head">
+            <h3 class="word-title">${highlight(item.word)}</h3>
+            <button class="voice-button" type="button" data-word="${escapeHtml(item.word)}" aria-label="朗读 ${escapeHtml(item.word)}" title="朗读 ${escapeHtml(item.word)}">
+              <span aria-hidden="true">▶</span>
+            </button>
+            <span class="word-index">#${escapeHtml(index)}</span>
+          </div>
+          ${fields}
+        </article>
+      `;
+    }
+
+    function extractReviewWord(reviewItem) {
+      const backtickMatch = reviewItem.match(/`([^`]+)`/);
+      if (backtickMatch) return backtickMatch[1].trim();
+      const firstToken = reviewItem.split(/[：:\s]/)[0];
+      return firstToken ? cleanSpeechText(firstToken) : "";
+    }
+
+    function findLearnedWord(word) {
+      const normalized = cleanSpeechText(word).toLowerCase();
+      if (!normalized) return null;
+      for (const day of state.days) {
+        for (const item of day.words) {
+          if (cleanSpeechText(item.word).toLowerCase() === normalized) {
+            return item;
+          }
+        }
+      }
+      return null;
+    }
+
+    function makeReviewWord(reviewItem, index) {
+      const word = extractReviewWord(reviewItem);
+      const learnedWord = findLearnedWord(word);
+      const reviewField = {
+        name: "回顾重点",
+        value: reviewItem,
+        children: []
+      };
+
+      if (learnedWord) {
+        return {
+          ...learnedWord,
+          index: String(index),
+          fields: [reviewField, ...learnedWord.fields]
+        };
+      }
+
+      return {
+        index: String(index),
+        word: word || `review ${index}`,
+        fields: [reviewField]
+      };
+    }
+
     function parseMarkdown(markdown) {
       const lines = markdown.replace(/\r\n/g, "\n").split("\n");
       const days = [];
       let currentDay = null;
       let currentWord = null;
       let pendingField = null;
+      let reviewMode = false;
 
       for (const rawLine of lines) {
         const line = rawLine.trimEnd();
         const dateMatch = line.match(/^##\s+(\d{4}-\d{2}-\d{2})\s*$/);
         const wordMatch = line.match(/^###\s+(?:(\d+)\.\s*)?(.+?)\s*$/);
+        const reviewMatch = line.match(/^####\s+回顾模块\s*$/);
         const topicMatch = line.match(/^主题：(.+?)\s*$/);
         const fieldMatch = line.match(/^-\s*([^：:]+)[：:]\s*(.*)$/);
         const nestedMatch = line.match(/^\s{2,}-\s+(.+)$/);
+        const reviewItemMatch = line.match(/^-\s+(.+)$/);
 
         if (dateMatch) {
-          currentDay = { date: dateMatch[1], topic: "", words: [] };
+          currentDay = { date: dateMatch[1], topic: "", words: [], review: [] };
           days.push(currentDay);
           currentWord = null;
           pendingField = null;
+          reviewMode = false;
           continue;
         }
 
@@ -555,7 +661,20 @@
           continue;
         }
 
+        if (reviewMatch) {
+          reviewMode = true;
+          currentWord = null;
+          pendingField = null;
+          continue;
+        }
+
+        if (reviewMode && reviewItemMatch) {
+          currentDay.review.push(reviewItemMatch[1]);
+          continue;
+        }
+
         if (wordMatch) {
+          reviewMode = false;
           currentWord = {
             index: wordMatch[1] || String(currentDay.words.length + 1),
             word: wordMatch[2],
@@ -601,12 +720,27 @@
 
     function renderDates() {
       el.dateList.innerHTML = "";
+      const reviewDay = getActiveReviewDay();
+      if (reviewDay) {
+        const reviewButton = document.createElement("button");
+        reviewButton.type = "button";
+        reviewButton.className = `date-button${state.activeView === "review" ? " active" : ""}`;
+        reviewButton.innerHTML = `<span>回顾模块</span><span>${reviewDay.review.length}</span>`;
+        reviewButton.addEventListener("click", () => {
+          state.activeView = "review";
+          state.activeDate = reviewDay.date;
+          render();
+        });
+        el.dateList.appendChild(reviewButton);
+      }
+
       for (const day of state.days) {
         const button = document.createElement("button");
         button.type = "button";
-        button.className = `date-button${day.date === state.activeDate ? " active" : ""}`;
+        button.className = `date-button${state.activeView === "words" && day.date === state.activeDate ? " active" : ""}`;
         button.innerHTML = `<span>${escapeHtml(day.date)}</span><span>${day.words.length}</span>`;
         button.addEventListener("click", () => {
+          state.activeView = "words";
           state.activeDate = day.date;
           render();
         });
@@ -614,7 +748,40 @@
       }
     }
 
+    function getActiveReviewDay() {
+      const activeDay = state.days.find(day => day.date === state.activeDate);
+      if (activeDay && activeDay.review && activeDay.review.length) return activeDay;
+      return state.days.find(day => day.review && day.review.length) || null;
+    }
+
+    function renderReviewContent() {
+      const reviewDay = getActiveReviewDay();
+      if (!reviewDay) {
+        el.currentDate.textContent = "回顾模块";
+        el.summary.textContent = "暂无回顾内容";
+        el.content.innerHTML = '<div class="empty">还没有回顾记录。</div>';
+        return;
+      }
+
+      el.currentDate.textContent = "回顾模块";
+      el.summary.textContent = `${reviewDay.date} · ${reviewDay.review.length} 个复习项`;
+      const reviewCards = reviewDay.review
+        .map((item, index) => renderWordCard(makeReviewWord(item, index + 1), index + 1))
+        .join("");
+
+      el.content.innerHTML = `
+        <p class="topic">${escapeHtml(reviewDay.date)}</p>
+        <section class="word-grid">${reviewCards}</section>
+      `;
+      bindVoiceButtons();
+    }
+
     function renderContent() {
+      if (state.activeView === "review") {
+        renderReviewContent();
+        return;
+      }
+
       const originalDay = state.days.find(day => day.date === state.activeDate);
       if (!originalDay) {
         el.content.innerHTML = '<div class="empty">还没有学习记录。</div>';
@@ -633,37 +800,10 @@
       }
 
       const topic = day.topic ? `<p class="topic">${highlight(day.topic)}</p>` : "";
-      const cards = day.words.map(item => {
-        const fields = item.fields.map(field => {
-          const children = field.children.length
-            ? `<ul class="sub-list">${field.children.map(child => `<li>${highlight(child)}</li>`).join("")}</ul>`
-            : "";
-          return `
-            <div class="field">
-              <span class="field-name">${highlight(field.name)}：</span>${renderSpeakableValue(field)}
-              ${children}
-            </div>
-          `;
-        }).join("");
-
-        return `
-          <article class="word-card">
-            <div class="word-head">
-              <h3 class="word-title">${highlight(item.word)}</h3>
-              <button class="voice-button" type="button" data-word="${escapeHtml(item.word)}" aria-label="朗读 ${escapeHtml(item.word)}" title="朗读 ${escapeHtml(item.word)}">
-                <span aria-hidden="true">▶</span>
-              </button>
-              <span class="word-index">#${escapeHtml(item.index)}</span>
-            </div>
-            ${fields}
-          </article>
-        `;
-      }).join("");
+      const cards = day.words.map((item, index) => renderWordCard(item, index + 1)).join("");
 
       el.content.innerHTML = `${topic}<section class="word-grid">${cards}</section>`;
-      el.content.querySelectorAll(".voice-button, .inline-voice-button").forEach(button => {
-        button.addEventListener("click", () => speakText(button.dataset.word || ""));
-      });
+      bindVoiceButtons();
     }
 
     function render() {
