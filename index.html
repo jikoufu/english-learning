@@ -202,6 +202,7 @@
     }
 
     .speak-all,
+    .review-refresh,
     .voice-button,
     .inline-voice-button {
       border: 1px solid var(--line);
@@ -211,10 +212,29 @@
       cursor: pointer;
     }
 
-    .speak-all {
+    .speak-all,
+    .review-refresh {
       height: 40px;
       padding: 0 14px;
       white-space: nowrap;
+    }
+
+    .review-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 18px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .review-toolbar p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
     }
 
     .voice-button {
@@ -241,6 +261,7 @@
     }
 
     .speak-all:hover,
+    .review-refresh:hover,
     .voice-button:hover,
     .inline-voice-button:hover {
       border-color: var(--blue);
@@ -432,7 +453,8 @@
       days: [],
       activeDate: "",
       query: "",
-      activeView: "words"
+      activeView: "words",
+      reviewWords: []
     };
 
     const el = {
@@ -583,6 +605,32 @@
       `;
     }
 
+    function getAllLearnedWords() {
+      return state.days.flatMap(day => {
+        return day.words.map(item => ({
+          ...item,
+          fields: [
+            {
+              name: "学习日期",
+              value: day.date,
+              children: []
+            },
+            ...item.fields
+          ]
+        }));
+      });
+    }
+
+    function refreshReviewWords() {
+      const pool = getAllLearnedWords();
+      const shuffled = [...pool];
+      for (let i = shuffled.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      state.reviewWords = shuffled.slice(0, 5);
+    }
+
     function extractReviewWord(reviewItem) {
       const backtickMatch = reviewItem.match(/`([^`]+)`/);
       if (backtickMatch) return backtickMatch[1].trim();
@@ -705,30 +753,38 @@
       return days.reverse();
     }
 
+    function wordMatchesQuery(item, query) {
+      const text = [
+        item.word,
+        ...item.fields.flatMap(field => [field.name, field.value, ...field.children])
+      ].join(" ").toLowerCase();
+      return text.includes(query);
+    }
+
     function dayMatches(day) {
       const query = state.query.trim().toLowerCase();
       if (!query) return day;
-      const words = day.words.filter(item => {
-        const text = [
-          item.word,
-          ...item.fields.flatMap(field => [field.name, field.value, ...field.children])
-        ].join(" ").toLowerCase();
-        return text.includes(query);
-      });
+      const words = day.words.filter(item => wordMatchesQuery(item, query));
       return { ...day, words };
+    }
+
+    function getGlobalSearchResults() {
+      const query = state.query.trim().toLowerCase();
+      if (!query) return [];
+      return getAllLearnedWords().filter(item => wordMatchesQuery(item, query));
     }
 
     function renderDates() {
       el.dateList.innerHTML = "";
-      const reviewDay = getActiveReviewDay();
-      if (reviewDay) {
+      const totalWords = state.days.reduce((sum, day) => sum + day.words.length, 0);
+      if (totalWords) {
         const reviewButton = document.createElement("button");
         reviewButton.type = "button";
         reviewButton.className = `date-button${state.activeView === "review" ? " active" : ""}`;
-        reviewButton.innerHTML = `<span>回顾模块</span><span>${reviewDay.review.length}</span>`;
+        reviewButton.innerHTML = `<span>回顾模块</span><span>5</span>`;
         reviewButton.addEventListener("click", () => {
           state.activeView = "review";
-          state.activeDate = reviewDay.date;
+          if (!state.reviewWords.length) refreshReviewWords();
           render();
         });
         el.dateList.appendChild(reviewButton);
@@ -755,28 +811,53 @@
     }
 
     function renderReviewContent() {
-      const reviewDay = getActiveReviewDay();
-      if (!reviewDay) {
+      const totalWords = state.days.reduce((sum, day) => sum + day.words.length, 0);
+      if (!totalWords) {
         el.currentDate.textContent = "回顾模块";
         el.summary.textContent = "暂无回顾内容";
         el.content.innerHTML = '<div class="empty">还没有回顾记录。</div>';
         return;
       }
 
+      if (!state.reviewWords.length) refreshReviewWords();
+
       el.currentDate.textContent = "回顾模块";
-      el.summary.textContent = `${reviewDay.date} · ${reviewDay.review.length} 个复习项`;
-      const reviewCards = reviewDay.review
-        .map((item, index) => renderWordCard(makeReviewWord(item, index + 1), index + 1))
+      el.summary.textContent = `随机复习：${state.reviewWords.length} / ${totalWords} 个单词`;
+      const reviewCards = state.reviewWords
+        .map((item, index) => renderWordCard({ ...item, index: String(index + 1) }, index + 1))
         .join("");
 
       el.content.innerHTML = `
-        <p class="topic">${escapeHtml(reviewDay.date)}</p>
+        <div class="review-toolbar">
+          <p>从全部学习记录里随机抽 5 个单词。</p>
+          <button class="review-refresh" id="refreshReview" type="button">刷新回顾</button>
+        </div>
         <section class="word-grid">${reviewCards}</section>
       `;
+      document.querySelector("#refreshReview").addEventListener("click", () => {
+        refreshReviewWords();
+        renderReviewContent();
+      });
       bindVoiceButtons();
     }
 
     function renderContent() {
+      if (state.query.trim()) {
+        const results = getGlobalSearchResults();
+        el.currentDate.textContent = "全局搜索";
+        el.summary.textContent = `搜索结果：${results.length} 个单词`;
+
+        if (!results.length) {
+          el.content.innerHTML = '<div class="empty">没有匹配的单词。</div>';
+          return;
+        }
+
+        const cards = results.map((item, index) => renderWordCard(item, index + 1)).join("");
+        el.content.innerHTML = `<section class="word-grid">${cards}</section>`;
+        bindVoiceButtons();
+        return;
+      }
+
       if (state.activeView === "review") {
         renderReviewContent();
         return;
@@ -790,9 +871,7 @@
 
       const day = dayMatches(originalDay);
       el.currentDate.textContent = day.date;
-      el.summary.textContent = state.query
-        ? `搜索结果：${day.words.length} / ${originalDay.words.length} 个单词`
-        : `${originalDay.words.length} 个单词`;
+      el.summary.textContent = `${originalDay.words.length} 个单词`;
 
       if (!day.words.length) {
         el.content.innerHTML = '<div class="empty">没有匹配的单词。</div>';
@@ -821,6 +900,7 @@
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const markdown = await response.text();
         state.days = parseMarkdown(markdown);
+        state.reviewWords = [];
         state.activeDate = state.activeDate || (state.days[0] && state.days[0].date) || "";
         el.status.textContent = "已同步";
         render();
@@ -843,6 +923,17 @@
     el.reload.addEventListener("click", loadMarkdown);
 
     el.speakAll.addEventListener("click", () => {
+      if (state.query.trim()) {
+        speakWords(getGlobalSearchResults());
+        return;
+      }
+
+      if (state.activeView === "review") {
+        if (!state.reviewWords.length) refreshReviewWords();
+        speakWords(state.reviewWords);
+        return;
+      }
+
       const originalDay = state.days.find(day => day.date === state.activeDate);
       if (!originalDay) return;
       speakWords(dayMatches(originalDay).words);
