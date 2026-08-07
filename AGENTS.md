@@ -157,6 +157,12 @@
 
 所有“核心动词 / 核心形容词 / 核心词”也必须有自己的构词分析。不要只分析外层单词，例如不要只写 `locator = locate + -or`，还要在 `locate` 下面解释 `locate` 自己的构词或记忆拆法。
 
+如果单词是基础词、基础动词或复合词，没有可单独拆出的核心动词，必须明确标注：
+
+- “这是基础词，没有单独的核心动词，核心意思是……”
+- 如果它本身就是动词：“这是基础动词，核心动词就是它本身。”
+- 如果它是复合词：“这是复合词，由……组成，没有额外的核心动词。”
+
 常见需要这样处理的词包括：requirement -> require，implementation -> implement，deployment -> deploy，production -> produce，environment -> environ，authentication -> authenticate，authorization -> authorize，permission -> permit，response -> respond，monitoring -> monitor。
 
 ## 例句规则
