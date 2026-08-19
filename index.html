@@ -237,6 +237,78 @@
       line-height: 1.5;
     }
 
+    .srs-stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .srs-card {
+      grid-column: 1 / -1;
+      max-width: 760px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .srs-prompt {
+      padding: 28px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .srs-prompt .word-title {
+      font-size: 34px;
+    }
+
+    .srs-answer {
+      margin-top: 18px;
+    }
+
+    .srs-answer[hidden] {
+      display: none;
+    }
+
+    .srs-show,
+    .srs-rating {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 0 14px;
+      cursor: pointer;
+    }
+
+    .srs-show {
+      display: block;
+      margin: 18px auto 0;
+    }
+
+    .srs-show:hover,
+    .srs-rating:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .srs-ratings {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .srs-rating.again { border-color: #dc2626; color: #b91c1c; }
+    .srs-rating.hard { border-color: #d97706; color: #b45309; }
+    .srs-rating.good { border-color: #2563eb; color: #1d4ed8; }
+    .srs-rating.easy { border-color: #16a34a; color: #15803d; }
+
+    @media (max-width: 560px) {
+      .srs-ratings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
     .voice-button {
       width: 36px;
       height: 36px;
@@ -454,7 +526,9 @@
       activeDate: "",
       query: "",
       activeView: "words",
-      reviewWords: []
+      reviewWords: [],
+      reviewIndex: 0,
+      reviewAnswerShown: false
     };
 
     const el = {
@@ -621,14 +695,72 @@
       });
     }
 
+    const SRS_KEY = "english-learning-srs-v1";
+
+    function readSrs() {
+      try { return JSON.parse(localStorage.getItem(SRS_KEY) || "{}"); }
+      catch { return {}; }
+    }
+
+    function srsKey(item) {
+      return cleanSpeechText(item.word).toLowerCase();
+    }
+
+    function todayIso() {
+      const now = new Date();
+      const offset = now.getTimezoneOffset() * 60000;
+      return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+    }
+
+    function addDays(dateText, days) {
+      const date = new Date(`${dateText}T12:00:00`);
+      date.setDate(date.getDate() + days);
+      return date.toISOString().slice(0, 10);
+    }
+
+    function getSrsStats() {
+      const records = readSrs();
+      const all = getAllLearnedWords();
+      const today = todayIso();
+      const due = all.filter(item => !records[srsKey(item)] || (records[srsKey(item)].due || today) <= today).length;
+      const learned = all.filter(item => records[srsKey(item)] && records[srsKey(item)].reviews > 0).length;
+      return { due, learned, total: all.length };
+    }
+
+    function scheduleReview(item, rating) {
+      const records = readSrs();
+      const key = srsKey(item);
+      const old = records[key] || { interval: 0, reviews: 0, streak: 0 };
+      let interval;
+      let streak = old.streak || 0;
+      if (rating === "again") { interval = 0; streak = 0; }
+      if (rating === "hard") { interval = Math.max(1, Math.round((old.interval || 1) * 1.2)); }
+      if (rating === "good") {
+        streak += 1;
+        interval = streak === 1 ? 1 : streak === 2 ? 3 : Math.max(4, Math.round((old.interval || 3) * 2.2));
+      }
+      if (rating === "easy") {
+        streak += 1;
+        interval = Math.max(4, Math.round((old.interval || 2) * 2.5));
+      }
+      records[key] = { interval, due: addDays(todayIso(), interval), reviews: (old.reviews || 0) + 1, streak, last: todayIso() };
+      localStorage.setItem(SRS_KEY, JSON.stringify(records));
+    }
+
     function refreshReviewWords() {
       const pool = getAllLearnedWords();
-      const shuffled = [...pool];
+      const records = readSrs();
+      const today = todayIso();
+      const due = pool.filter(item => !records[srsKey(item)] || (records[srsKey(item)].due || today) <= today);
+      const source = due.length ? due : pool;
+      const shuffled = [...source];
       for (let i = shuffled.length - 1; i > 0; i -= 1) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
       state.reviewWords = shuffled.slice(0, 5);
+      state.reviewIndex = 0;
+      state.reviewAnswerShown = false;
     }
 
     function extractReviewWord(reviewItem) {
@@ -778,10 +910,11 @@
       el.dateList.innerHTML = "";
       const totalWords = state.days.reduce((sum, day) => sum + day.words.length, 0);
       if (totalWords) {
+        const dueCount = getSrsStats().due;
         const reviewButton = document.createElement("button");
         reviewButton.type = "button";
         reviewButton.className = `date-button${state.activeView === "review" ? " active" : ""}`;
-        reviewButton.innerHTML = `<span>回顾模块</span><span>5</span>`;
+        reviewButton.innerHTML = `<span>回顾模块</span><span>${dueCount}</span>`;
         reviewButton.addEventListener("click", () => {
           state.activeView = "review";
           if (!state.reviewWords.length) refreshReviewWords();
@@ -821,22 +954,60 @@
 
       if (!state.reviewWords.length) refreshReviewWords();
 
+      const current = state.reviewWords[state.reviewIndex];
+      if (!current) {
+        refreshReviewWords();
+        return renderReviewContent();
+      }
+      const stats = getSrsStats();
+      const record = readSrs()[srsKey(current)] || { interval: 0, reviews: 0 };
+      const answer = renderWordCard(current, state.reviewIndex + 1);
+
       el.currentDate.textContent = "回顾模块";
-      el.summary.textContent = `随机复习：${state.reviewWords.length} / ${totalWords} 个单词`;
-      const reviewCards = state.reviewWords
-        .map((item, index) => renderWordCard({ ...item, index: String(index + 1) }, index + 1))
-        .join("");
+      el.summary.textContent = `今日到期 ${stats.due} 个 · 已学习 ${stats.learned} / ${stats.total} 个 · 当前间隔 ${record.interval || 0} 天`;
 
       el.content.innerHTML = `
         <div class="review-toolbar">
-          <p>从全部学习记录里随机抽 5 个单词。</p>
+          <div>
+            <p>先回忆单词，再显示答案并评价记忆程度。</p>
+            <div class="srs-stats"><span>本组 ${state.reviewIndex + 1} / ${state.reviewWords.length}</span><span>到期词优先</span></div>
+          </div>
           <button class="review-refresh" id="refreshReview" type="button">刷新回顾</button>
         </div>
-        <section class="word-grid">${reviewCards}</section>
+        <section class="word-grid">
+          <article class="word-card srs-card">
+            <div class="srs-prompt">
+              <h3 class="word-title">${highlight(current.word)}</h3>
+              <button class="srs-show" id="showAnswer" type="button">显示答案</button>
+              <div class="srs-answer" id="srsAnswer" ${state.reviewAnswerShown ? "" : "hidden"}>
+                ${answer}
+                <div class="srs-ratings">
+                  <button class="srs-rating again" data-rating="again" type="button">重来<br><small>今天重现</small></button>
+                  <button class="srs-rating hard" data-rating="hard" type="button">困难<br><small>短间隔</small></button>
+                  <button class="srs-rating good" data-rating="good" type="button">良好<br><small>正常增长</small></button>
+                  <button class="srs-rating easy" data-rating="easy" type="button">简单<br><small>长间隔</small></button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
       `;
       document.querySelector("#refreshReview").addEventListener("click", () => {
         refreshReviewWords();
         renderReviewContent();
+      });
+      document.querySelector("#showAnswer").addEventListener("click", () => {
+        state.reviewAnswerShown = true;
+        renderReviewContent();
+      });
+      el.content.querySelectorAll(".srs-rating").forEach(button => {
+        button.addEventListener("click", () => {
+          scheduleReview(current, button.dataset.rating);
+          state.reviewIndex += 1;
+          state.reviewAnswerShown = false;
+          if (state.reviewIndex >= state.reviewWords.length) refreshReviewWords();
+          renderReviewContent();
+        });
       });
       bindVoiceButtons();
     }
