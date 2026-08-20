@@ -10,6 +10,7 @@ $Python = "C:\Python\Python312\python.exe"
 $ServerScript = Join-Path $Root "learning_server.py"
 $PidFile = Join-Path $Root ".server-60001.pid"
 $Url = "http://${HostAddress}:${Port}/index.html"
+$Guard = Join-Path $Root "tools\vocab_guard.py"
 
 function Get-PortProcessIds {
     $lines = netstat -ano | Select-String "${HostAddress}:$Port"
@@ -47,17 +48,29 @@ function Stop-LearningServer {
 }
 
 function Start-LearningServer {
+    if (-not (Test-Path -LiteralPath $Python)) {
+        Write-Host "Python was not found at $Python"
+        Write-Host "Please edit `$Python in this script or install Python."
+        exit 1
+    }
+    if (Test-Path -LiteralPath (Join-Path $Root ".git")) {
+        & git -C $Root config core.hooksPath .githooks 2>$null
+        if ($LASTEXITCODE -ne 0) { Write-Host "Warning: could not set Git core.hooksPath." }
+    }
+    if (-not (Test-Path -LiteralPath $Guard)) {
+        Write-Host "Vocabulary guard was not found: $Guard"
+        exit 1
+    }
+    & $Python $Guard check
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Vocabulary check failed; refusing to start the server."
+        exit 1
+    }
     $processIds = @(Get-PortProcessIds | Select-Object -Unique)
     if ($processIds.Count -gt 0) {
         Write-Host "Port $Port is already in use by process: $($processIds -join ', ')"
         Write-Host "URL: $Url"
         return
-    }
-
-    if (-not (Test-Path -LiteralPath $Python)) {
-        Write-Host "Python was not found at $Python"
-        Write-Host "Please edit `$Python in this script or install Python."
-        exit 1
     }
 
     if (-not (Test-Path -LiteralPath $ServerScript)) {

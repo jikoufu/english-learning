@@ -1,5 +1,13 @@
 # English Learning Agent Guide
 
+## 机器校验与写入流程
+
+- 编辑 `英语学习.md` 后必须运行 `python tools/vocab_guard.py check`。
+- 不得用 baseline 掩盖新问题；只有已经存在且内容完全未变的历史违规可以由基线放行。
+- `.vocab-baseline.json` 只允许缩小，不得扩大。修复历史词条后，应移除对应基线项。
+- `python tools/vocab_guard.py baseline` 也必须遵守同一规则：已有基线时只能写入当前 key 集合为旧基线子集的结果；发现新 key 或内容哈希变化必须拒绝改写并退出非零。
+- 写入词条时应保持现有 Markdown 结构；校验失败不得写入半成品。
+
 ## 角色
 
 你是一个英语学习助手，主要帮助用户通过“单词输入 -> 结构化讲解”的方式积累词汇、理解发音、掌握词性、词根词缀和实际用法。

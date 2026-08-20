@@ -1,0 +1,657 @@
+{
+  "version": 1,
+  "source": "英语学习.md",
+  "violations": [
+    {
+      "rule_id": "verb_form_current",
+      "date": "2026-05-15",
+      "word": "monitoring",
+      "content_hash": "94ff8819fab27a0a2f461158e5182d10b62c8ba0559f8d565725016060b2a15f",
+      "detail": "动词变化形式缺少字段：当前形式"
+    },
+    {
+      "rule_id": "verb_form_base",
+      "date": "2026-05-15",
+      "word": "monitoring",
+      "content_hash": "94ff8819fab27a0a2f461158e5182d10b62c8ba0559f8d565725016060b2a15f",
+      "detail": "动词变化形式缺少字段：动词原形"
+    },
+    {
+      "rule_id": "verb_form_passive",
+      "date": "2026-05-15",
+      "word": "monitoring",
+      "content_hash": "94ff8819fab27a0a2f461158e5182d10b62c8ba0559f8d565725016060b2a15f",
+      "detail": "动词变化形式缺少字段：被动常用形式"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-15",
+      "word": "incident",
+      "content_hash": "00a448e0e3af6ff6d344f614478d8006564c19bd87772ab6e0dd80d239b07cf2",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "clarify",
+      "content_hash": "c3ddc77f785e80b2a3d7d3020c44baab2857d4c7cda8f8fe1347640a06308c45",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "maintain",
+      "content_hash": "f022b89eb767df34c857bd4a09a27721a3766167fe746a41fd0a42df8b018e04",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "connects",
+      "content_hash": "c1f0f1f12e213ac21707ba68eac258fe0b87ac50a5eb805427060fb2e7288c08",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "frontend",
+      "content_hash": "7a7a4d12daad168cf7a52340d369c34fe8fb5533823ee36594235e2b36fabce5",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "backend",
+      "content_hash": "06deb6355a01c755fe074cfffb43b46ec5b10246b67b24788d8c83f66b3d8421",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "simple",
+      "content_hash": "3f586e85d0aa9d354733048e771a250746af897d50440ad0d524d47f4de79b50",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "reliable",
+      "content_hash": "40e4da1c145c2a3a1f2556f2328e68df67eda78004576f20ac91103ca475f762",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "made",
+      "content_hash": "8f7338c28670ed07f58b8c02da87b5d60cc0893978e56aee806bfcabdab8b1f3",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "request",
+      "content_hash": "9457c2d43239c74f461ab404ee23cf2067f4630bf106c0276ced249b268e9622",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "validate",
+      "content_hash": "039cc4226546e0e035a81038f919d58463e55c7a5ae458797715a33bda87c731",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "input",
+      "content_hash": "451a68e8baa37071fdb6d7b7e2c553960fa775e9575fefc4f030e0fe2dc40f63",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "output",
+      "content_hash": "9ae3b99c10de7f79270aaeff541c1275c92237fd3de5826147fe34a8857a8782",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "status",
+      "content_hash": "2243ad904aee7e60b5d304298056d893cddb49d0fe316cc2549b63a77331a1c9",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "error",
+      "content_hash": "a60a5237929b3e0772cdb4e59934611c4d63030d6b95a26ba218727cd581a855",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "message",
+      "content_hash": "2c1e6605a72f65e5649bff0bff4180771fd2178e9f35308351a87facd30194c6",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-05-16",
+      "word": "service",
+      "content_hash": "af8a629d6fd93861c130c308d452dab2857cc114d1ac2fa02ac83f0f9f3fdd11",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-02",
+      "word": "temperature",
+      "content_hash": "4141cf67a869b92e8f5836129899e123762077dd9199d8622742a4527f10dca4",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-02",
+      "word": "prompt",
+      "content_hash": "d6ac98624335b2a4bc107b4e134a168d4998d5b0d9f2486ccfd5d7a9d63a0874",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-02",
+      "word": "token",
+      "content_hash": "36c1cb87bb4db0fc04a26a72780ad4d63cb78205b943dd38d5ecc4add478ffb1",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-02",
+      "word": "context",
+      "content_hash": "63a3429b077a4611efb3535a144365543022b65c85b1790ec30973cc96cf4d48",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "verb_form_current",
+      "date": "2026-06-02",
+      "word": "reasoning",
+      "content_hash": "770b0ebe05932598148179a6003a0c69be298f6fcab45c84bda4b13174b6fbf8",
+      "detail": "动词变化形式缺少字段：当前形式"
+    },
+    {
+      "rule_id": "verb_form_base",
+      "date": "2026-06-02",
+      "word": "reasoning",
+      "content_hash": "770b0ebe05932598148179a6003a0c69be298f6fcab45c84bda4b13174b6fbf8",
+      "detail": "动词变化形式缺少字段：动词原形"
+    },
+    {
+      "rule_id": "verb_form_passive",
+      "date": "2026-06-02",
+      "word": "reasoning",
+      "content_hash": "770b0ebe05932598148179a6003a0c69be298f6fcab45c84bda4b13174b6fbf8",
+      "detail": "动词变化形式缺少字段：被动常用形式"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-02",
+      "word": "benchmark",
+      "content_hash": "9576f65b14d67bcbe0f4ce79f15117b43aeac86af5879687278074da1df2a494",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-02",
+      "word": "metric",
+      "content_hash": "a794833a84610dfab34ccdaf26add994b4fce7e2e5aee1e7d68a95682e6e7505",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "verb_form_current",
+      "date": "2026-06-02",
+      "word": "grounding",
+      "content_hash": "bf281e6cfa727c990872da842d23171fc3a67bf01d8e6ee42d7a62c064fcc867",
+      "detail": "动词变化形式缺少字段：当前形式"
+    },
+    {
+      "rule_id": "verb_form_base",
+      "date": "2026-06-02",
+      "word": "grounding",
+      "content_hash": "bf281e6cfa727c990872da842d23171fc3a67bf01d8e6ee42d7a62c064fcc867",
+      "detail": "动词变化形式缺少字段：动词原形"
+    },
+    {
+      "rule_id": "verb_form_passive",
+      "date": "2026-06-02",
+      "word": "grounding",
+      "content_hash": "bf281e6cfa727c990872da842d23171fc3a67bf01d8e6ee42d7a62c064fcc867",
+      "detail": "动词变化形式缺少字段：被动常用形式"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-03",
+      "word": "engineer",
+      "content_hash": "632357903917625e78c04c36d9e10b69974036fd52e003fc2c48cbe3147a4645",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "verb_form_current",
+      "date": "2026-06-03",
+      "word": "engineering",
+      "content_hash": "0a931530d25a6cf564c307f39e2fc596b26b0575400e026bd2e521ac5f988409",
+      "detail": "动词变化形式缺少字段：当前形式"
+    },
+    {
+      "rule_id": "verb_form_base",
+      "date": "2026-06-03",
+      "word": "engineering",
+      "content_hash": "0a931530d25a6cf564c307f39e2fc596b26b0575400e026bd2e521ac5f988409",
+      "detail": "动词变化形式缺少字段：动词原形"
+    },
+    {
+      "rule_id": "verb_form_passive",
+      "date": "2026-06-03",
+      "word": "engineering",
+      "content_hash": "0a931530d25a6cf564c307f39e2fc596b26b0575400e026bd2e521ac5f988409",
+      "detail": "动词变化形式缺少字段：被动常用形式"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-03",
+      "word": "recent",
+      "content_hash": "4d3bf8a1d00f97de023f1e87a0109b4157d5235c7763e73750d6d83cd444900e",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-03",
+      "word": "scratch",
+      "content_hash": "13ef975e67df61b2457c86b08120daaa99bb3f2041d15355866a6ae9fc6711fe",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-03",
+      "word": "covered",
+      "content_hash": "0536103e2ce57d08c95e63169809dd5a6dc1812b58d736498bb2c84b06694231",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-03",
+      "word": "thousand",
+      "content_hash": "dd0ed20c831e95800ccd27a1354a3fa73019cca01fc9b3083e481ee00eb79aaa",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-03",
+      "word": "improved",
+      "content_hash": "53b5e536443aed53697f58af9d60b207715e5789b9f1c1e7b78627423b995a87",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-03",
+      "word": "workflow",
+      "content_hash": "8ba6c7becf22ff48071bc741af48bc4f0280a5075d877feae870fea032a1c967",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-27",
+      "word": "label",
+      "content_hash": "b6c8c629eaed053ab7b14aeb05370dc71ea0507fc360a4ad45496d91bb443052",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-06-27",
+      "word": "fill",
+      "content_hash": "def6905e8ac8a9892808ce343b4c5e1c56bedac815a40788b2066a6e5ba867d4",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-06",
+      "word": "results",
+      "content_hash": "0fddefe86719da45189181c15aad173a86219c57e98ca1b71e61a333e2cb1c6f",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "verb_form_base",
+      "date": "2026-07-06",
+      "word": "articles",
+      "content_hash": "d39a3e9c1cd11a56d119903039ca00ceea9fea93c69277c9523bf3a80fa98559",
+      "detail": "动词变化形式缺少字段：动词原形"
+    },
+    {
+      "rule_id": "verb_form_paradigm",
+      "date": "2026-07-06",
+      "word": "articles",
+      "content_hash": "d39a3e9c1cd11a56d119903039ca00ceea9fea93c69277c9523bf3a80fa98559",
+      "detail": "动词变化形式缺少字段：动词变化"
+    },
+    {
+      "rule_id": "verb_form_passive",
+      "date": "2026-07-06",
+      "word": "articles",
+      "content_hash": "d39a3e9c1cd11a56d119903039ca00ceea9fea93c69277c9523bf3a80fa98559",
+      "detail": "动词变化形式缺少字段：被动常用形式"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-06",
+      "word": "articles",
+      "content_hash": "d39a3e9c1cd11a56d119903039ca00ceea9fea93c69277c9523bf3a80fa98559",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-06",
+      "word": "stable",
+      "content_hash": "caef6163b88147f8016ad24659d1dc2e12305a58c5b64fef142bc5e062395795",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-08",
+      "word": "scripts",
+      "content_hash": "f0acd1d822272a6b9355960a1884e2b6cff7088193e31b342057adf1af0692c9",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-12",
+      "word": "maintain",
+      "content_hash": "32bf7ef46d6aa4c86b8eaaf9ed8773dd729fe9de22d0ec5f242a0b00d13a641c",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-30",
+      "word": "create",
+      "content_hash": "a94261857facd08c317b9ea5b9931cb726c17d8027ba2b40d5b39ea5188bf5cb",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-30",
+      "word": "update",
+      "content_hash": "e6ebd11297117ab7bf23d798f7ce58d0c8f5b121ae081cc8dda638ae092000d8",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-30",
+      "word": "delete",
+      "content_hash": "9351db75b154bc17af01a1b5b500a17a4bb99a53890715a512ef839cc4f553f9",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-30",
+      "word": "check",
+      "content_hash": "5041e6621410ffe0f19c8b12d0776b06f16bb186b19a498db3c24b0b8534efcc",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-30",
+      "word": "handle",
+      "content_hash": "c83a38fb4fbb7b2c81b5fe201d323986d8f4b8a9bfb7beb9ac5f1d7a49ed10db",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-30",
+      "word": "script",
+      "content_hash": "490790aba0b6149d6f856959ff93113c9c6942e4b0c6a0f833fea7f25fca21ad",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-07-30",
+      "word": "clarify",
+      "content_hash": "3c05b2626ad1d50143a5e951a6f2566b6d054e3db18d56fb5e8fd8dd39dddcbc",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-01",
+      "word": "configure",
+      "content_hash": "09042971b1f5139c72b1fee69525f533e2e786926bfc1a712b3f6d2eb01eda2a",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-01",
+      "word": "investigate",
+      "content_hash": "8f3919931a78220b388949780efbfa520b8519c966681cc8c459a88d15f55e3f",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-01",
+      "word": "compare",
+      "content_hash": "bcb9a793fbfad04a641998db0766c513844ef665d059ecac5c0a8d41bb90e7f1",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-01",
+      "word": "document",
+      "content_hash": "8089fd113ac4f285cd8e3505c9c4b1eca1e9a546542cb2cbe80598e68d56ac4f",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-02",
+      "word": "connect",
+      "content_hash": "88d18d7e2d495316b7812b429cd6a8c127ac12beccb7d15e0929cd2e6ee33f35",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "suffix_function",
+      "date": "2026-08-04",
+      "word": "touch",
+      "content_hash": "1cce0695f4890340476ef8a37be5dab96ffcc4ea8f175df862d05348b64c5af3",
+      "detail": "后缀说明必须包含词性功能和大致含义"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-04",
+      "word": "touch",
+      "content_hash": "1cce0695f4890340476ef8a37be5dab96ffcc4ea8f175df862d05348b64c5af3",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-04",
+      "word": "regular",
+      "content_hash": "7002891e81a15643d56d9bb247776f3df33f91f95b41befb7d828d8a921e1ecd",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-05",
+      "word": "between",
+      "content_hash": "d250c9f6c4b2538afd3021383bb6c45fc3e8614aa3086703cb6b327238c2f4ad",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "pronunciation_ipa",
+      "date": "2026-08-05",
+      "word": "DESC",
+      "content_hash": "55fa6ad29825ff197b81daeefe850cc378e3cc2843d106c45fc0c31b1a1a8464",
+      "detail": "读音字段必须包含 IPA 音标"
+    },
+    {
+      "rule_id": "polysemy_meanings",
+      "date": "2026-08-05",
+      "word": "DESC",
+      "content_hash": "55fa6ad29825ff197b81daeefe850cc378e3cc2843d106c45fc0c31b1a1a8464",
+      "detail": "多词性必须分别说明不同词性意思"
+    },
+    {
+      "rule_id": "pronunciation_ipa",
+      "date": "2026-08-05",
+      "word": "ASC",
+      "content_hash": "2ce3a5d4cc7a59a38d350e797229e78c5e33d7cc774f78f41780c6d7ca554bbb",
+      "detail": "读音字段必须包含 IPA 音标"
+    },
+    {
+      "rule_id": "polysemy_meanings",
+      "date": "2026-08-05",
+      "word": "ASC",
+      "content_hash": "2ce3a5d4cc7a59a38d350e797229e78c5e33d7cc774f78f41780c6d7ca554bbb",
+      "detail": "多词性必须分别说明不同词性意思"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-07",
+      "word": "serial",
+      "content_hash": "e228cf085e5debbecf85dac2b3ca9f113bf44cbd14e30304458d67c3942b47c0",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-07",
+      "word": "sends",
+      "content_hash": "977791ebfd2656bbbea84f52a4b580959d4207ac4caff1cfd03f205ad7761ad5",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-07",
+      "word": "through",
+      "content_hash": "388485bc7e1cbf35e033cc65e8a14b052c13d57c3e50356b0d956146c1b3c5ff",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-07",
+      "word": "reduces",
+      "content_hash": "99be2406fa7bc887c65e5e07e8ed2b2af46370f94b20c5c642e3d6c3cdc91fc6",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-09",
+      "word": "rolled",
+      "content_hash": "9d17472d715ce76ee09c96fd7b0248429e93adc9848461b1b55fc241c1a91566",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "suffix_function",
+      "date": "2026-08-09",
+      "word": "back",
+      "content_hash": "aa31a83e412a5522e7d8ec4ec849a1e1e271bd72da4755335c184b4a45627855",
+      "detail": "后缀说明必须包含词性功能和大致含义"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-09",
+      "word": "increased",
+      "content_hash": "0b56ecf3aae3215fb9fb7be71334db37d18662ad8698517e05a9b1360004cffe",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "suffix_function",
+      "date": "2026-08-10",
+      "word": "column",
+      "content_hash": "e1ea96236811f5f8005f59bb50488920e7e90a8cfb66ab146e02aa7e3bdee4a6",
+      "detail": "后缀说明必须包含词性功能和大致含义"
+    },
+    {
+      "rule_id": "polysemy_meanings",
+      "date": "2026-08-10",
+      "word": "attached",
+      "content_hash": "e2e785148b0f95188426a8789d7dc8bf2c1366cced2d77ae2e38bde0f5734149",
+      "detail": "多词性必须分别说明不同词性意思"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-10",
+      "word": "attached",
+      "content_hash": "e2e785148b0f95188426a8789d7dc8bf2c1366cced2d77ae2e38bde0f5734149",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "verb_form_base",
+      "date": "2026-08-10",
+      "word": "locators",
+      "content_hash": "4ffb0f7fe4247597900003bc69cb1c4ab5b7908399cb2c49eec770890026c72d",
+      "detail": "动词变化形式缺少字段：动词原形"
+    },
+    {
+      "rule_id": "suffix_function",
+      "date": "2026-08-10",
+      "word": "screens",
+      "content_hash": "41ab3b7b89a34cc5144770f03bf21e7330cee2104d1f1d6fdc81f505522ceba7",
+      "detail": "后缀说明必须包含词性功能和大致含义"
+    },
+    {
+      "rule_id": "core_word_marker",
+      "date": "2026-08-10",
+      "word": "screens",
+      "content_hash": "41ab3b7b89a34cc5144770f03bf21e7330cee2104d1f1d6fdc81f505522ceba7",
+      "detail": "必须明确核心词，或说明是基础词、基础动词、复合词"
+    },
+    {
+      "rule_id": "suffix_function",
+      "date": "2026-08-16",
+      "word": "turn",
+      "content_hash": "dd1e408b312d81c38438ff94de8458ce55a2f1f4729fd1ecd29b08b098f2aa4b",
+      "detail": "后缀说明必须包含词性功能和大致含义"
+    },
+    {
+      "rule_id": "suffix_function",
+      "date": "2026-08-16",
+      "word": "idle",
+      "content_hash": "51038ef54ef9388be1cdb5b9a5c1b552e4d2413c2acff9afe7fa1c8e2fcb0877",
+      "detail": "后缀说明必须包含词性功能和大致含义"
+    },
+    {
+      "rule_id": "suffix_function",
+      "date": "2026-08-19",
+      "word": "source",
+      "content_hash": "fcd8cf5b6348ace86aa22ad8ea7142861f197ff9bbb5bbbd85cf8f809ed2e6d9",
+      "detail": "后缀说明必须包含词性功能和大致含义"
+    },
+    {
+      "rule_id": "verb_form_current",
+      "date": "2026-08-19",
+      "word": "apropos",
+      "content_hash": "16a7e3b2140bd412d16f64a431b6f32a608e47ec94fd9c559cadf8f5c7d51b7e",
+      "detail": "动词变化形式缺少字段：当前形式"
+    },
+    {
+      "rule_id": "verb_form_base",
+      "date": "2026-08-19",
+      "word": "apropos",
+      "content_hash": "16a7e3b2140bd412d16f64a431b6f32a608e47ec94fd9c559cadf8f5c7d51b7e",
+      "detail": "动词变化形式缺少字段：动词原形"
+    },
+    {
+      "rule_id": "verb_form_paradigm",
+      "date": "2026-08-19",
+      "word": "apropos",
+      "content_hash": "16a7e3b2140bd412d16f64a431b6f32a608e47ec94fd9c559cadf8f5c7d51b7e",
+      "detail": "动词变化形式缺少字段：动词变化"
+    },
+    {
+      "rule_id": "verb_form_passive",
+      "date": "2026-08-19",
+      "word": "apropos",
+      "content_hash": "16a7e3b2140bd412d16f64a431b6f32a608e47ec94fd9c559cadf8f5c7d51b7e",
+      "detail": "动词变化形式缺少字段：被动常用形式"
+    },
+    {
+      "rule_id": "suffix_function",
+      "date": "2026-08-19",
+      "word": "mount",
+      "content_hash": "04413793590eb55b73a6899b73b2683a8541451c56c2174363d25c6ef5074618",
+      "detail": "后缀说明必须包含词性功能和大致含义"
+    }
+  ]
+}
