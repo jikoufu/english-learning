@@ -21,6 +21,23 @@ LEGAL = """- 中文意思：测试
 - 记忆提示：test 就是测试。
 """
 
+CORE_VERB = """- 中文意思：测试过程
+- 读音：TES-ting；音标：/ˈtestɪŋ/
+- 分开读：test-ing，重音在 TES
+- 词性：名词 noun
+- 构词分析：test + -ing，表示测试过程。
+- 核心动词：test
+  - 构词分析：test 是基础动词，核心意思是测试。
+  - 中文意思：测试
+  - 读音：TEST；音标：/test/
+  - 分开读：test，单音节
+  - 词性：动词 verb
+  - 动词变化：test / tests / testing / tested / tested
+  - 例句：We test the code. 我们测试代码。
+- 例句：Testing takes time. 测试需要时间。
+- 记忆提示：test 是测试。
+"""
+
 
 class VocabGuardTests(unittest.TestCase):
     def test_legal_entry_passes(self):
@@ -56,6 +73,42 @@ class VocabGuardTests(unittest.TestCase):
     def test_noun_plural_is_not_verb_form(self):
         body = LEGAL.replace("词性：名词 noun；动词 verb", "词性：名词 noun").replace("不同词性意思：名词：测试；动词：测试", "")
         self.assertFalse(any(v["rule_id"].startswith("verb_form_") for v in vocab_guard.check_entry(entry("tests", body))))
+
+    def test_noun_plural_with_current_form_is_not_verb_form(self):
+        body = LEGAL.replace("词性：名词 noun；动词 verb", "词性：名词 noun").replace("不同词性意思：名词：测试；动词：测试", "")
+        body += "- 当前形式：test 的复数形式\n- 单数形式：test\n"
+        self.assertFalse(any(v["rule_id"].startswith("verb_form_") for v in vocab_guard.check_entry(entry("tests", body))))
+
+    def test_adverb_does_not_match_verb(self):
+        body = LEGAL.replace("词性：名词 noun；动词 verb", "词性：副词 adverb").replace("- 不同词性意思：名词：测试；动词：测试\n", "")
+        self.assertFalse(any(v["rule_id"].startswith("verb_form_") for v in vocab_guard.check_entry(entry("apropos", body))))
+
+    def test_gerund_requires_verb_form_fields(self):
+        body = LEGAL.replace("词性：名词 noun；动词 verb", "词性：名词 noun；动名词 gerund")
+        errors = {v["rule_id"] for v in vocab_guard.check_entry(entry("monitoring", body))}
+        self.assertIn("verb_form_current", errors)
+        self.assertIn("verb_form_base", errors)
+        self.assertIn("verb_form_paradigm", errors)
+        self.assertIn("verb_form_passive", errors)
+
+    def test_negative_suffix_statement_is_allowed(self):
+        body = LEGAL.replace("- 构词分析：这是基础词，没有单独的核心动词。\n", "- 构词分析：这是基础词，没有可可靠拆分的现代英语后缀。\n")
+        self.assertFalse(any(v["rule_id"] == "suffix_function" for v in vocab_guard.check_entry(entry("test", body))))
+
+    def test_nested_polysemy_does_not_satisfy_outer_field(self):
+        body = LEGAL.replace("- 不同词性意思：名词：测试；动词：测试\n", "  - 不同词性意思：名词：测试；动词：测试\n")
+        self.assertTrue(any(v["rule_id"] == "polysemy_meanings" for v in vocab_guard.check_entry(entry("test", body))))
+
+    def test_complete_core_verb_passes(self):
+        self.assertEqual(vocab_guard.check_entry(entry("testing", CORE_VERB)), [])
+
+    def test_core_details_must_be_nested(self):
+        body = CORE_VERB.replace("  - 构词分析：test 是基础动词，核心意思是测试。", "- 构词分析：test 是基础动词，核心意思是测试。")
+        self.assertTrue(any(v["rule_id"] == "core_details" for v in vocab_guard.check_entry(entry("testing", body))))
+
+    def test_core_pronunciation_requires_ipa(self):
+        body = CORE_VERB.replace("  - 读音：TEST；音标：/test/", "  - 读音：TEST")
+        self.assertTrue(any(v["rule_id"] == "core_pronunciation_ipa" for v in vocab_guard.check_entry(entry("testing", body))))
 
     def test_date_ends_previous_entry(self):
         entries = list(vocab_guard.parse_entries("## 2026-08-19\n### old\n- x\n## 2026-08-20\n### new\n- y\n"))

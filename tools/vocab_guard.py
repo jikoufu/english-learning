@@ -27,6 +27,15 @@ REQUIRED = {
     "memory": "记忆提示",
 }
 
+CORE_REQUIRED = {
+    "word_formation": "构词分析",
+    "meaning": "中文意思",
+    "pronunciation": "读音",
+    "syllables": "分开读",
+    "part_of_speech": "词性",
+    "example": "例句",
+}
+
 
 def parse_entries(text: str):
     date = None
@@ -61,6 +70,20 @@ def violation(entry, rule_id, detail):
     }
 
 
+def top_level_fields(body: str):
+    """Return top-level Markdown fields with their indented child lines."""
+    fields = []
+    current = None
+    for line in body.splitlines():
+        match = re.match(r"^-\s*([^：:]+)\s*[:：]\s*(.*)$", line)
+        if match:
+            current = {"name": match.group(1).strip(), "value": match.group(2), "children": []}
+            fields.append(current)
+        elif current and re.match(r"^\s{2,}-\s+", line):
+            current["children"].append(line)
+    return fields
+
+
 def check_entry(entry):
     body = "".join(entry["lines"])
     result = []
@@ -71,12 +94,16 @@ def check_entry(entry):
     if pronunciation and not IPA_RE.search("- 读音：" + pronunciation.group(1)):
         result.append(violation(entry, "pronunciation_ipa", "读音字段必须包含 IPA 音标"))
     pos = re.search(r"^-\s*词性\s*[:：](.+)$", body, re.M)
-    if pos and ("；" in pos.group(1) or ";" in pos.group(1)) and "不同词性意思" not in body:
+    if pos and ("；" in pos.group(1) or ";" in pos.group(1)) and not re.search(r"^-\s*不同词性意思\s*[:：]", body, re.M):
         result.append(violation(entry, "polysemy_meanings", "多词性必须分别说明不同词性意思"))
     word = re.sub(r"^\d+[.)]\s*", "", entry["word"]).strip().lower()
-    pos_is_verb = bool(re.search(r"^\s*-\s*词性\s*[:：].*(?:verb|动词)", body, re.M | re.I))
+    pos_is_verb = bool(re.search(
+        r"^-\s*词性\s*[:：].*(?:\bverb\b|动词(?:\s|；|;|，|,|$)|\bgerund\b|动名词|past tense|past participle)",
+        body,
+        re.M | re.I,
+    ))
     explicit_form = bool(re.search(r"过去式|过去分词|第三人称单数|ing 形式|变化形式|当前形式", body, re.I))
-    if (pos_is_verb and re.search(r"(?:s|es|ies|ed|ing)$", word)) or explicit_form:
+    if pos_is_verb and (re.search(r"(?:s|es|ies|ed|ing)$", word) or explicit_form):
         form_fields = {
             "current": "当前形式",
             "base": "动词原形",
@@ -86,12 +113,30 @@ def check_entry(entry):
         for field_id, label in form_fields.items():
             if not re.search(re.escape(label), body):
                 result.append(violation(entry, f"verb_form_{field_id}", f"动词变化形式缺少字段：{label}"))
-    core_present = re.search(r"核心(?:动词|形容词|词)\s*[:：]", body) and not re.search(r"核心(?:动词|形容词|词)说明", body)
-    if core_present and not re.search(r"核心(?:动词|形容词|词)[\s\S]*?构词分析\s*[:：]", body):
-        result.append(violation(entry, "core_formation", "核心词展开必须包含内部构词分析"))
+    for field in top_level_fields(body):
+        if field["name"] not in {"核心动词", "核心形容词", "核心词"}:
+            continue
+        children = "\n".join(field["children"])
+        missing = [
+            label
+            for label in CORE_REQUIRED.values()
+            if not re.search(rf"^\s{{2,}}-\s*{re.escape(label)}\s*[:：]", children, re.M)
+        ]
+        if field["name"] == "核心动词" and not re.search(r"^\s{2,}-\s*动词变化\s*[:：]", children, re.M):
+            missing.append("动词变化")
+        if missing:
+            result.append(violation(
+                entry,
+                "core_details",
+                f"{field['name']} {field['value']} 缺少子字段：{'、'.join(missing)}",
+            ))
+        pronunciation = re.search(r"^\s{2,}-\s*读音\s*[:：](.+)$", children, re.M)
+        if pronunciation and not IPA_RE.search("- 读音：" + pronunciation.group(1)):
+            result.append(violation(entry, "core_pronunciation_ipa", f"{field['name']}的读音必须包含 IPA 音标"))
     if "后缀" in body:
         for line in body.splitlines():
-            if "后缀" in line and not re.search(r"名词|形容词|动词|副词|表示|功能|作用|含义|意思", line):
+            no_suffix = re.search(r"没有|无|不含|不可可靠拆分|不建议硬拆|无法可靠拆分", line)
+            if "后缀" in line and not no_suffix and not re.search(r"名词|形容词|动词|副词|表示|功能|作用|含义|意思", line):
                 result.append(violation(entry, "suffix_function", "后缀说明必须包含词性功能和大致含义"))
                 break
     if not re.search(r"核心(?:动词|形容词|词)(?:说明)?\s*[:：]|这是(?:基础词|基础动词|复合词)", body):

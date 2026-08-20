@@ -511,6 +511,7 @@
           <p id="summary">自动读取 英语学习.md</p>
         </div>
         <div class="actions">
+          <button class="reload" id="exportReview" type="button">导出回顾记录</button>
           <button class="speak-all" id="speakAll" type="button">朗读当前日期</button>
           <button class="reload" id="reload" type="button">刷新</button>
         </div>
@@ -541,6 +542,7 @@
       summary: document.querySelector("#summary"),
       content: document.querySelector("#content"),
       reload: document.querySelector("#reload"),
+      exportReview: document.querySelector("#exportReview"),
       speakAll: document.querySelector("#speakAll")
     };
 
@@ -696,10 +698,125 @@
     }
 
     const SRS_KEY = "english-learning-srs-v1";
+    const REVIEW_FILE = "回顾记录.md";
 
     function readSrs() {
       try { return JSON.parse(localStorage.getItem(SRS_KEY) || "{}"); }
       catch { return {}; }
+    }
+
+    function saveSrs(records) {
+      localStorage.setItem(SRS_KEY, JSON.stringify(records));
+    }
+
+    function normalizeReviewRecord(record = {}) {
+      return {
+        interval: Math.max(0, Number(record.interval) || 0),
+        due: record.due || "",
+        reviews: Math.max(0, Number(record.reviews) || 0),
+        streak: Math.max(0, Number(record.streak) || 0),
+        last: record.last || "",
+        updatedAt: record.updatedAt || ""
+      };
+    }
+
+    function reviewRecordTime(record) {
+      const value = record.updatedAt || (record.last ? `${record.last}T00:00:00Z` : "");
+      const time = Date.parse(value);
+      return Number.isNaN(time) ? 0 : time;
+    }
+
+    function mergeReviewRecords(localRecords, fileRecords) {
+      const merged = { ...localRecords };
+      for (const [word, incomingValue] of Object.entries(fileRecords)) {
+        const incoming = normalizeReviewRecord(incomingValue);
+        const current = normalizeReviewRecord(merged[word]);
+        if (!merged[word] || reviewRecordTime(incoming) >= reviewRecordTime(current)) {
+          merged[word] = incoming;
+        }
+      }
+      return merged;
+    }
+
+    function parseReviewMarkdown(markdown) {
+      const records = {};
+      let word = "";
+      for (const rawLine of markdown.replace(/\r\n/g, "\n").split("\n")) {
+        const heading = rawLine.match(/^##\s+(.+?)\s*$/);
+        if (heading) {
+          word = cleanSpeechText(heading[1]).toLowerCase();
+          if (word) records[word] = normalizeReviewRecord(records[word]);
+          continue;
+        }
+        if (!word) continue;
+        const field = rawLine.match(/^-s*([^：:]+)[：:]\s*(.*)$/);
+        if (!field) continue;
+        const labels = {
+          "间隔天数": "interval",
+          "到期日期": "due",
+          "复习次数": "reviews",
+          "连续次数": "streak",
+          "上次复习": "last",
+          "更新时间": "updatedAt"
+        };
+        const key = labels[field[1].trim()];
+        if (!key) continue;
+        records[word][key] = ["interval", "reviews", "streak"].includes(key)
+          ? Number(field[2]) || 0
+          : field[2].trim();
+      }
+      return records;
+    }
+
+    function serializeReviewMarkdown(records) {
+      const lines = [
+        "# 回顾记录",
+        "",
+        "- 版本：1",
+        `- 导出时间：${new Date().toISOString()}`,
+        ""
+      ];
+      const words = Object.keys(records).sort((a, b) => a.localeCompare(b, "en"));
+      for (const word of words) {
+        const record = normalizeReviewRecord(records[word]);
+        lines.push(
+          `## ${word}`,
+          "",
+          `- 间隔天数：${record.interval}`,
+          `- 到期日期：${record.due}`,
+          `- 复习次数：${record.reviews}`,
+          `- 连续次数：${record.streak}`,
+          `- 上次复习：${record.last}`,
+          `- 更新时间：${record.updatedAt}`,
+          ""
+        );
+      }
+      return `${lines.join("\n").trimEnd()}\n`;
+    }
+
+    async function loadReviewProgress() {
+      try {
+        const response = await fetch(`./${REVIEW_FILE}?ts=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) return;
+        const fileRecords = parseReviewMarkdown(await response.text());
+        saveSrs(mergeReviewRecords(readSrs(), fileRecords));
+      } catch {
+        // The local cache remains usable when the progress file is unavailable.
+      }
+    }
+
+    function exportReviewProgress() {
+      const markdown = serializeReviewMarkdown(readSrs());
+      const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = REVIEW_FILE;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      el.status.textContent = "记录已导出";
     }
 
     function srsKey(item) {
@@ -743,8 +860,15 @@
         streak += 1;
         interval = Math.max(4, Math.round((old.interval || 2) * 2.5));
       }
-      records[key] = { interval, due: addDays(todayIso(), interval), reviews: (old.reviews || 0) + 1, streak, last: todayIso() };
-      localStorage.setItem(SRS_KEY, JSON.stringify(records));
+      records[key] = {
+        interval,
+        due: addDays(todayIso(), interval),
+        reviews: (old.reviews || 0) + 1,
+        streak,
+        last: todayIso(),
+        updatedAt: new Date().toISOString()
+      };
+      saveSrs(records);
     }
 
     function refreshReviewWords() {
@@ -1071,6 +1195,7 @@
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const markdown = await response.text();
         state.days = parseMarkdown(markdown);
+        await loadReviewProgress();
         state.reviewWords = [];
         state.activeDate = state.activeDate || (state.days[0] && state.days[0].date) || "";
         el.status.textContent = "已同步";
@@ -1092,6 +1217,7 @@
     });
 
     el.reload.addEventListener("click", loadMarkdown);
+    el.exportReview.addEventListener("click", exportReviewProgress);
 
     el.speakAll.addEventListener("click", () => {
       if (state.query.trim()) {
