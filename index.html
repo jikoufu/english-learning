@@ -561,7 +561,33 @@
         || null;
     }
 
-    function speakText(text) {
+    function waitForEnglishVoice(timeout = 1500) {
+      const voice = getEnglishVoice();
+      if (voice || !("speechSynthesis" in window)) return Promise.resolve(voice);
+
+      return new Promise(resolve => {
+        let finished = false;
+        const finish = () => {
+          if (finished) return;
+          finished = true;
+          window.speechSynthesis.removeEventListener("voiceschanged", finish);
+          resolve(getEnglishVoice());
+        };
+        window.speechSynthesis.addEventListener("voiceschanged", finish, { once: true });
+        setTimeout(finish, timeout);
+      });
+    }
+
+    function createUtterance(text, voice, rate) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = rate;
+      utterance.pitch = 1;
+      if (voice) utterance.voice = voice;
+      return utterance;
+    }
+
+    async function speakText(text, retry = true) {
       if (!("speechSynthesis" in window)) {
         el.status.textContent = "不支持语音";
         return;
@@ -571,51 +597,64 @@
       if (!speechText) return;
 
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(speechText);
-      utterance.lang = "en-US";
-      utterance.rate = 0.86;
-      utterance.pitch = 1;
-      utterance.voice = getEnglishVoice();
+      const voice = await waitForEnglishVoice();
+      const utterance = createUtterance(speechText, voice, 0.86);
       utterance.onstart = () => {
         el.status.textContent = "朗读中";
       };
       utterance.onend = () => {
         el.status.textContent = "已同步";
       };
-      utterance.onerror = () => {
-        el.status.textContent = "朗读失败";
+      utterance.onerror = event => {
+        if (retry && !["canceled", "interrupted"].includes(event.error)) {
+          el.status.textContent = "正在重试语音";
+          setTimeout(() => speakText(speechText, false), 250);
+          return;
+        }
+        el.status.textContent = "朗读失败，请再点一次";
       };
+      window.speechSynthesis.resume();
       window.speechSynthesis.speak(utterance);
     }
 
-    function speakWords(words) {
+    async function speakWords(words) {
       if (!("speechSynthesis" in window)) {
         el.status.textContent = "不支持语音";
         return;
       }
 
       window.speechSynthesis.cancel();
-      const voice = getEnglishVoice();
+      const voice = await waitForEnglishVoice();
       const queue = words.map(item => cleanSpeechText(item.word)).filter(Boolean);
 
       if (!queue.length) return;
 
-      for (const word of queue) {
-        const utterance = new SpeechSynthesisUtterance(word);
-        utterance.lang = "en-US";
-        utterance.rate = 0.82;
-        utterance.pitch = 1;
-        utterance.voice = voice;
+      let index = 0;
+      const speakNext = () => {
+        if (index >= queue.length) {
+          el.status.textContent = "已同步";
+          return;
+        }
+
+        const utterance = createUtterance(queue[index], voice, 0.82);
         utterance.onstart = () => {
-          el.status.textContent = "朗读中";
+          el.status.textContent = `朗读中 ${index + 1}/${queue.length}`;
         };
         utterance.onend = () => {
-          if (!window.speechSynthesis.speaking) {
-            el.status.textContent = "已同步";
-          }
+          index += 1;
+          speakNext();
         };
+        utterance.onerror = event => {
+          if (["canceled", "interrupted"].includes(event.error)) return;
+          index += 1;
+          el.status.textContent = `跳过失败语音 ${index}/${queue.length}`;
+          setTimeout(speakNext, 200);
+        };
+        window.speechSynthesis.resume();
         window.speechSynthesis.speak(utterance);
-      }
+      };
+
+      speakNext();
     }
 
     function escapeHtml(value) {
