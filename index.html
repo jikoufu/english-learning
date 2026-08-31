@@ -521,6 +521,7 @@
     </main>
   </div>
 
+  <script src="./review-progress.js"></script>
   <script>
     const state = {
       days: [],
@@ -738,6 +739,11 @@
 
     const SRS_KEY = "english-learning-srs-v1";
     const REVIEW_FILE = "回顾记录.md";
+    const {
+      mergeReviewRecords,
+      parseReviewMarkdown,
+      serializeReviewMarkdown
+    } = window.ReviewProgress;
 
     function readSrs() {
       try { return JSON.parse(localStorage.getItem(SRS_KEY) || "{}"); }
@@ -746,91 +752,6 @@
 
     function saveSrs(records) {
       localStorage.setItem(SRS_KEY, JSON.stringify(records));
-    }
-
-    function normalizeReviewRecord(record = {}) {
-      return {
-        interval: Math.max(0, Number(record.interval) || 0),
-        due: record.due || "",
-        reviews: Math.max(0, Number(record.reviews) || 0),
-        streak: Math.max(0, Number(record.streak) || 0),
-        last: record.last || "",
-        updatedAt: record.updatedAt || ""
-      };
-    }
-
-    function reviewRecordTime(record) {
-      const value = record.updatedAt || (record.last ? `${record.last}T00:00:00Z` : "");
-      const time = Date.parse(value);
-      return Number.isNaN(time) ? 0 : time;
-    }
-
-    function mergeReviewRecords(localRecords, fileRecords) {
-      const merged = { ...localRecords };
-      for (const [word, incomingValue] of Object.entries(fileRecords)) {
-        const incoming = normalizeReviewRecord(incomingValue);
-        const current = normalizeReviewRecord(merged[word]);
-        if (!merged[word] || reviewRecordTime(incoming) >= reviewRecordTime(current)) {
-          merged[word] = incoming;
-        }
-      }
-      return merged;
-    }
-
-    function parseReviewMarkdown(markdown) {
-      const records = {};
-      let word = "";
-      for (const rawLine of markdown.replace(/\r\n/g, "\n").split("\n")) {
-        const heading = rawLine.match(/^##\s+(.+?)\s*$/);
-        if (heading) {
-          word = cleanSpeechText(heading[1]).toLowerCase();
-          if (word) records[word] = normalizeReviewRecord(records[word]);
-          continue;
-        }
-        if (!word) continue;
-        const field = rawLine.match(/^-s*([^：:]+)[：:]\s*(.*)$/);
-        if (!field) continue;
-        const labels = {
-          "间隔天数": "interval",
-          "到期日期": "due",
-          "复习次数": "reviews",
-          "连续次数": "streak",
-          "上次复习": "last",
-          "更新时间": "updatedAt"
-        };
-        const key = labels[field[1].trim()];
-        if (!key) continue;
-        records[word][key] = ["interval", "reviews", "streak"].includes(key)
-          ? Number(field[2]) || 0
-          : field[2].trim();
-      }
-      return records;
-    }
-
-    function serializeReviewMarkdown(records) {
-      const lines = [
-        "# 回顾记录",
-        "",
-        "- 版本：1",
-        `- 导出时间：${new Date().toISOString()}`,
-        ""
-      ];
-      const words = Object.keys(records).sort((a, b) => a.localeCompare(b, "en"));
-      for (const word of words) {
-        const record = normalizeReviewRecord(records[word]);
-        lines.push(
-          `## ${word}`,
-          "",
-          `- 间隔天数：${record.interval}`,
-          `- 到期日期：${record.due}`,
-          `- 复习次数：${record.reviews}`,
-          `- 连续次数：${record.streak}`,
-          `- 上次复习：${record.last}`,
-          `- 更新时间：${record.updatedAt}`,
-          ""
-        );
-      }
-      return `${lines.join("\n").trimEnd()}\n`;
     }
 
     async function loadReviewProgress() {
