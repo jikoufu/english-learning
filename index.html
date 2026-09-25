@@ -990,6 +990,17 @@
       return getAllLearnedWords().filter(item => wordMatchesQuery(item, query));
     }
 
+    function getAdverbWords() {
+      const seen = new Set();
+      return getAllLearnedWords().filter(item => {
+        const partOfSpeech = item.fields.find(field => field.name === "词性")?.value || "";
+        const key = srsKey(item);
+        if (!/(?:副词|\badverb\b)/i.test(partOfSpeech) || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
     function renderDates() {
       el.dateList.innerHTML = "";
       const totalWords = state.days.reduce((sum, day) => sum + day.words.length, 0);
@@ -1006,6 +1017,17 @@
         });
         el.dateList.appendChild(reviewButton);
       }
+
+      const adverbWords = getAdverbWords();
+      const adverbButton = document.createElement("button");
+      adverbButton.type = "button";
+      adverbButton.className = `date-button${state.activeView === "adverbs" ? " active" : ""}`;
+      adverbButton.innerHTML = `<span>副词模块</span><span>${adverbWords.length}</span>`;
+      adverbButton.addEventListener("click", () => {
+        state.activeView = "adverbs";
+        render();
+      });
+      el.dateList.appendChild(adverbButton);
 
       for (const day of state.days) {
         const button = document.createElement("button");
@@ -1118,6 +1140,17 @@
         return;
       }
 
+      if (state.activeView === "adverbs") {
+        const words = getAdverbWords();
+        el.currentDate.textContent = "副词模块";
+        el.summary.textContent = `已学习 ${words.length} 个副词`;
+        el.content.innerHTML = words.length
+          ? `<section class="word-grid">${words.map((item, index) => renderWordCard({ ...item, index: String(index + 1) }, index + 1)).join("")}</section>`
+          : '<div class="empty">还没有学习过副词。</div>';
+        bindVoiceButtons();
+        return;
+      }
+
       const originalDay = state.days.find(day => day.date === state.activeDate);
       if (!originalDay) {
         el.content.innerHTML = '<div class="empty">还没有学习记录。</div>';
@@ -1144,6 +1177,10 @@
       const totalWords = state.days.reduce((sum, day) => sum + day.words.length, 0);
       el.wordCount.textContent = totalWords;
       el.dateCount.textContent = state.days.length;
+      el.speakAll.textContent = state.query.trim() ? "朗读搜索结果"
+        : state.activeView === "adverbs" ? "朗读副词"
+        : state.activeView === "review" ? "朗读回顾单词"
+        : "朗读当前日期";
       renderDates();
       renderContent();
     }
@@ -1188,6 +1225,11 @@
       if (state.activeView === "review") {
         if (!state.reviewWords.length) refreshReviewWords();
         speakWords(state.reviewWords);
+        return;
+      }
+
+      if (state.activeView === "adverbs") {
+        speakWords(getAdverbWords());
         return;
       }
 
